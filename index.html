@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026 Athlete Forms — Auto Filler</title>
+<style>
+  :root{
+    --blue:#0b3d91; --blue2:#1256c4; --red:#ce1126; --ink:#1c2733;
+    --muted:#5b6b7b; --line:#dbe3ec; --bg:#eef2f7; --card:#ffffff; --ok:#0e7a3d;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:'Segoe UI',system-ui,-apple-system,Arial,sans-serif; background:var(--bg); color:var(--ink); min-height:100vh;}
+  header{background:linear-gradient(135deg,var(--blue) 0%,var(--blue2) 70%); color:#fff; padding:26px 20px 22px; box-shadow:0 2px 10px rgba(11,61,145,.35);}
+  .hwrap{max-width:980px; margin:0 auto; display:flex; align-items:center; gap:16px; flex-wrap:wrap;}
+  .logo{width:52px;height:52px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--blue);font-size:15px;letter-spacing:.5px;box-shadow:inset 0 0 0 3px var(--red), inset 0 0 0 6px #fff;}
+  h1{font-size:21px; font-weight:700;}
+  .sub{font-size:13px; opacity:.85; margin-top:3px;}
+  main{max-width:980px; margin:24px auto 60px; padding:0 16px;}
+  .grid{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  @media (max-width:760px){ .grid{grid-template-columns:1fr;} }
+  .card{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px 18px 16px; box-shadow:0 1px 4px rgba(28,39,51,.06);}
+  .card h2{font-size:13px; text-transform:uppercase; letter-spacing:1.2px; color:var(--blue); margin-bottom:14px; display:flex; align-items:center; gap:8px;}
+  .card h2 .n{background:var(--blue); color:#fff; border-radius:50%; width:20px;height:20px; display:inline-flex; align-items:center; justify-content:center; font-size:11px;}
+  .row{display:flex; gap:10px;}
+  .row>*{flex:1;}
+  label{display:block; font-size:11.5px; font-weight:600; color:var(--muted); margin:10px 0 4px;}
+  label .req{color:var(--red);}
+  input[type=text],input[type=date],input[type=number],select{
+    width:100%; padding:9px 10px; border:1.5px solid var(--line); border-radius:8px;
+    font-size:14px; color:var(--ink); background:#fbfcfe; outline:none; transition:border .15s;
+  }
+  input:focus,select:focus{border-color:var(--blue2); background:#fff;}
+  .hint{font-size:11px; color:var(--muted); margin-top:3px;}
+  .drop{border:2px dashed var(--line); border-radius:10px; padding:14px; text-align:center; cursor:pointer; transition:all .15s; background:#fbfcfe;}
+  .drop:hover{border-color:var(--blue2); background:#f2f7ff;}
+  .drop img{max-height:130px; border-radius:6px; box-shadow:0 1px 6px rgba(0,0,0,.15); display:block; margin:0 auto 8px;}
+  .drop p{font-size:12px; color:var(--muted);}
+  .actions{margin-top:20px; display:flex; gap:12px; flex-wrap:wrap; align-items:center;}
+  button{border:none; cursor:pointer; border-radius:9px; font-size:14.5px; font-weight:600; padding:13px 22px; transition:all .15s;}
+  button:disabled{opacity:.55; cursor:wait;}
+  .primary{background:var(--red); color:#fff; box-shadow:0 2px 8px rgba(206,17,38,.35);}
+  .primary:hover{filter:brightness(1.08);}
+  .ghost{background:#fff; color:var(--blue); border:1.5px solid var(--blue);}
+  .ghost:hover{background:#eef4ff;}
+  .status{font-size:13px; color:var(--muted); min-height:18px; margin-top:12px;}
+  .status.ok{color:var(--ok); font-weight:600;}
+  .status.err{color:var(--red); font-weight:600;}
+  .files{margin-top:10px; display:flex; flex-direction:column; gap:8px;}
+  .file{display:flex; align-items:center; justify-content:space-between; gap:10px; background:#f6f9fd; border:1px solid var(--line); border-radius:9px; padding:9px 12px; flex-wrap:wrap;}
+  .file .fname{font-size:13px; font-weight:600;}
+  .file .fsize{font-size:11px; color:var(--muted); font-weight:400;}
+  .file .fbtns{display:flex; gap:8px; flex-wrap:wrap;}
+  .mini{padding:7px 12px; font-size:12px; border-radius:7px; text-decoration:none; display:inline-block;}
+  .mini.dl{background:var(--blue); color:#fff;}
+  .mini.dl:hover{background:var(--blue2);}
+  .mini.view{background:#fff; color:var(--blue); border:1.5px solid var(--blue);}
+  .mini.direct{background:#fff; color:#5b6b7b; border:1px solid var(--line); font-weight:400;}
+  #viewer{display:none; margin-top:16px;}
+  #viewer h3{font-size:14px; color:var(--blue); margin-bottom:8px;}
+  #pdfframe{width:100%; height:640px; border:1px solid var(--line); border-radius:10px; background:#fff;}
+  .note{font-size:12px; color:var(--muted); background:#fdf6e3; border:1px solid #f0e2b0; border-radius:8px; padding:10px 12px; margin-top:14px; line-height:1.5;}
+  .spin{display:inline-block; width:14px;height:14px; border:2.5px solid rgba(255,255,255,.4); border-top-color:#fff; border-radius:50%; animation:sp .7s linear infinite; vertical-align:-2px; margin-right:7px;}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  #banner{display:none; max-width:980px; margin:16px auto 0; padding:12px 16px; border-radius:10px; background:#fdecec; border:1px solid #f3b6b6; color:#8f1f1f; font-size:13px; line-height:1.55;}
+  .help{display:none; margin-top:12px; background:#f2f7ff; border:1px solid #c9dcf5; border-radius:10px; padding:12px 14px; font-size:12.5px; color:#274a76; line-height:1.6;}
+  .help ol{margin:6px 0 6px 18px;}
+</style>
+</head>
+<body>
+<header>
+  <div class="hwrap">
+    <div class="logo">DepEd</div>
+    <div>
+      <h1>2026 Athlete Forms &mdash; Auto Filler</h1>
+      <div class="sub">Fill in the athlete&rsquo;s basic information once &mdash; get all four Palarong Pambansa 2026 forms filled out and ready to download.</div>
+    </div>
+  </div>
+</header>
+
+<div id="banner"></div>
+
+<main>
+  <div class="grid">
+    <div class="card">
+      <h2><span class="n">1</span> Athlete Information</h2>
+      <div class="row">
+        <div><label>Last Name <span class="req">*</span></label><input type="text" id="last_name" placeholder="DELA CRUZ"></div>
+        <div><label>First Name <span class="req">*</span></label><input type="text" id="first_name" placeholder="Juan"></div>
+        <div style="max-width:90px"><label>M.I.</label><input type="text" id="mi" placeholder="S." maxlength="10"></div>
+      </div>
+      <div class="row">
+        <div style="max-width:130px"><label>Sex</label>
+          <select id="sex"><option value=""></option><option value="M">Male</option><option value="F">Female</option></select>
+        </div>
+        <div><label>Date of Birth</label><input type="date" id="dob"></div>
+        <div style="max-width:100px"><label>Age</label><input type="number" id="age" min="0" max="100" placeholder="auto"><div class="hint">auto from birthdate</div></div>
+      </div>
+      <label>Place of Birth</label><input type="text" id="place_of_birth" placeholder="City / Municipality">
+      <div class="row">
+        <div><label>Learner Reference Number (LRN)</label><input type="text" id="lrn" placeholder="12-digit LRN"></div>
+        <div><label>Contact Number</label><input type="text" id="contact" placeholder="09XXXXXXXXX"></div>
+      </div>
+      <label>Grade Level</label>
+      <select id="grade">
+        <option value=""></option>
+        <option>Grade 1</option><option>Grade 2</option><option>Grade 3</option><option>Grade 4</option>
+        <option>Grade 5</option><option>Grade 6</option><option>Grade 7</option><option>Grade 8</option>
+        <option>Grade 9</option><option>Grade 10</option><option>Grade 11</option><option>Grade 12</option>
+      </select>
+      <label>Latest 1.8 &times; 1.4 inches picture <span style="font-weight:400">(optional &mdash; placed in the picture box of the Athlete Record)</span></label>
+      <div class="drop" id="drop">
+        <p id="droptext">📷 Click to upload a photo<br><span style="font-size:11px">JPG / PNG</span></p>
+      </div>
+      <input type="file" id="photo" accept="image/png,image/jpeg" style="display:none">
+    </div>
+
+    <div>
+      <div class="card">
+        <h2><span class="n">2</span> School</h2>
+        <label>School Name</label><input type="text" id="school" placeholder="e.g. Bacoor National High School">
+        <label>Address of School</label><input type="text" id="school_address" placeholder="School address">
+        <div class="row">
+          <div><label>Region</label><input type="text" id="region" placeholder="e.g. CALABARZON (IV-A)"></div>
+          <div><label>Division</label><input type="text" id="division" placeholder="e.g. Division of Bacoor City"></div>
+        </div>
+        <label>Present Address</label><input type="text" id="present_address" placeholder="Athlete's home address">
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h2><span class="n">3</span> Parents / Guardian</h2>
+        <div class="row">
+          <div><label>Father&rsquo;s Name</label><input type="text" id="father" placeholder="Full name"></div>
+          <div><label>Mother / Guardian Name</label><input type="text" id="mother" placeholder="Full name"></div>
+        </div>
+        <label>Address of Parents/Guardian</label><input type="text" id="parents_address" placeholder="If different from present address">
+        <div class="row">
+          <div><label>Consent Date <span style="font-weight:400">(Parental Consent form)</span></label><input type="date" id="consent_date"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="primary" id="btnAll" onclick="generate()">⬇&ensp;Fill &amp; Download All 4 Forms</button>
+    <button class="ghost" onclick="location.reload()">Clear</button>
+  </div>
+  <div class="status" id="status"></div>
+
+  <div class="files" id="files"></div>
+
+  <div class="help" id="help">
+    <b>If a download didn't start:</b>
+    <ol>
+      <li>Click the <b>Download</b> button again &mdash; browsers sometimes ask for permission on the first download from a new site (look at the address bar).</li>
+      <li>Use the <b>Direct link</b> buttons &mdash; they open the PDF/ZIP straight from the server in a new tab. <i>Note: direct links carry the form data in the URL but not the photo, so use Download if you uploaded a picture.</i></li>
+      <li>Copy this app's address into a different browser if downloads stay blocked:
+        <b id="appurl" style="user-select:all"></b></li>
+    </ol>
+  </div>
+
+  <div id="viewer">
+    <h3 id="viewtitle">Preview</h3>
+    <iframe id="pdfframe" title="PDF preview"></iframe>
+  </div>
+
+  <div class="note">
+    <b>How it works:</b> your details are stamped onto the original blanks of the four official PDFs &mdash;
+    the format, contents and paper size stay exactly the same.
+    <b>Age</b> is computed automatically from the date of birth. Nothing is stored on the server &mdash;
+    forms are generated on the fly and forgotten. Sign the printed copies afterwards (signatures are intentionally left blank).
+  </div>
+</main>
+
+<script>
+const F = {};
+["last_name","first_name","mi","sex","dob","age","place_of_birth","lrn","contact","grade",
+ "school","school_address","region","division","present_address","father","mother",
+ "parents_address","consent_date"].forEach(id => F[id] = () => document.getElementById(id).value.trim());
+
+let photoData = null;
+const drop = document.getElementById('drop');
+drop.addEventListener('click', () => document.getElementById('photo').click());
+document.getElementById('photo').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const rd = new FileReader();
+  rd.onload = ev => downscalePhoto(ev.target.result, 720, 720, small => {
+    photoData = small;
+    drop.innerHTML = '<img src="' + small + '"><p>Click to change photo</p>';
+  });
+  rd.readAsDataURL(file);
+});
+
+// shrink big photos client-side so uploads stay small
+function downscalePhoto(dataUrl, maxW, maxH, cb) {
+  const img = new Image();
+  img.onload = () => {
+    const scale = Math.min(1, maxW / img.width, maxH / img.height);
+    const c = document.createElement('canvas');
+    c.width = Math.round(img.width * scale);
+    c.height = Math.round(img.height * scale);
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    cb(c.toDataURL('image/jpeg', 0.85));
+  };
+  img.src = dataUrl;
+}
+
+// auto age
+document.getElementById('dob').addEventListener('change', () => {
+  const v = document.getElementById('dob').value;
+  if (!v) return;
+  const b = new Date(v + 'T00:00:00');
+  const t = new Date();
+  let a = t.getFullYear() - b.getFullYear();
+  if (t < new Date(t.getFullYear(), b.getMonth(), b.getDate())) a--;
+  if (a >= 0 && a < 120) document.getElementById('age').value = a;
+});
+
+// default consent date = today
+document.getElementById('consent_date').valueAsDate = new Date();
+
+const status = (msg, cls) => {
+  const el = document.getElementById('status');
+  el.textContent = msg || '';
+  el.className = 'status' + (cls ? ' ' + cls : '');
+};
+
+function collect() {
+  const d = {};
+  for (const k in F) d[k] = F[k]();
+  d.dob_iso = d.dob;
+  if (!d.last_name && !d.first_name) {
+    status('Please enter at least the athlete\u2019s first and last name.', 'err');
+    return null;
+  }
+  return d;
+}
+
+const LABELS = {
+  ar: '📄 Athlete Record', mf: '📄 Medical Certificate',
+  mh: '📄 Medical History (2 pages)', pc: '📄 Parental Consent',
+  zip: '📦 All 4 forms (ZIP)'
+};
+const blobs = {}, urls = {};
+
+function b64ToBlob(b64, type) {
+  const bin = atob(b64);
+  const arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  return new Blob([arr], { type });
+}
+
+function saveBlob(blob, filename) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 60000);
+}
+
+async function generate() {
+  const data = collect();
+  if (!data) return;
+  const btn = document.getElementById('btnAll');
+  btn.disabled = true;
+  status('Filling the forms\u2026', '');
+  try {
+    const r = await fetch('/api/fill', { method: 'POST', body: JSON.stringify({ data, photo: photoData }) });
+    if (!r.ok) throw new Error('Server error ' + r.status);
+    const res = await r.json();
+    for (const f of res.files) {
+      blobs[f.key] = b64ToBlob(f.b64, f.key === 'zip' ? 'application/zip' : 'application/pdf');
+      urls[f.key] = { blobUrl: URL.createObjectURL(blobs[f.key]), direct: f.url, name: f.name };
+    }
+    renderFiles(res.files);
+    status('Done! All 4 forms are filled.', 'ok');
+    document.getElementById('help').style.display = 'block';
+    document.getElementById('appurl').textContent = location.href;
+    // try to hand the ZIP over immediately
+    saveBlob(blobs['zip'], res.files.find(f => f.key === 'zip').name);
+  } catch (e) {
+    console.error(e);
+    status('Could not generate the forms (' + e.message + '). Please try again.', 'err');
+  }
+  btn.disabled = false;
+}
+
+function fmtSize(n) {
+  return n > 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.round(n / 1024) + ' KB';
+}
+
+function renderFiles(files) {
+  const wrap = document.getElementById('files');
+  wrap.innerHTML = '';
+  files.forEach(f => {
+    const row = document.createElement('div');
+    row.className = 'file';
+    row.innerHTML =
+      '<span class="fname">' + LABELS[f.key] + ' <span class="fsize">(' + fmtSize(f.size) + ')</span></span>' +
+      '<span class="fbtns">' +
+      '<button class="mini view" onclick="preview(\'' + f.key + '\')">Preview</button>' +
+      '<a class="mini dl" href="' + urls[f.key].blobUrl + '" download="' + f.name + '">Download</a>' +
+      '<a class="mini direct" href="' + f.url + '" target="_blank" rel="noopener">Direct link</a>' +
+      '</span>';
+    wrap.appendChild(row);
+  });
+}
+
+function preview(k) {
+  const u = urls[k];
+  if (!u) return;
+  document.getElementById('viewer').style.display = 'block';
+  document.getElementById('viewtitle').textContent = 'Preview — ' + LABELS[k];
+  document.getElementById('pdfframe').src = u.blobUrl;
+  document.getElementById('viewer').scrollIntoView({ behavior: 'smooth' });
+}
+
+// health check
+(async () => {
+  try {
+    const r = await fetch('/api/health');
+    if (!r.ok) throw new Error();
+  } catch (e) {
+    const b = document.getElementById('banner');
+    b.style.display = 'block';
+    b.innerHTML = '<b>⚠ The form server is not responding.</b> The page loaded, but PDF generation is unreachable. Please redeploy or try again shortly.';
+  }
+})();
+</script>
+</body>
+</html>
