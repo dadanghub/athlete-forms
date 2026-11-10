@@ -102,7 +102,19 @@ PC_FIELDS = [  # parental consent
     ("school",          "left",   135.0, 252.9, 10.0, 250, None),
 ]
 
-FIELDS_BY_DOC = {"ar": AR_FIELDS, "mf": MF_FIELDS, "mh": MH_FIELDS, "pc": PC_FIELDS}
+DN_FIELDS = [  # dental health record (portrait 612x792) - page 1 header
+    ("full_name",       "left",   146.0, 109.5, 9.0, 212, None),
+    ("age",             "left",   146.0, 117.5, 9.0,  45,
+     (158.5, 111.0, 181.0, 119.0)),                      # covers '#NUM!' artifact
+    ("sex",             "left",   224.0, 117.5, 9.0,  48, None),
+    ("dob",             "left",   326.0, 117.5, 9.0,  55,
+     (350.0, 111.0, 357.0, 119.0)),                      # covers '--' artifact
+    ("event",           "left",   146.0, 125.5, 9.0, 138, None),
+    ("guardian",        "left",   146.0, 134.8, 9.0, 188, None),
+]
+
+FIELDS_BY_DOC = {"ar": AR_FIELDS, "mf": MF_FIELDS, "mh": MH_FIELDS, "pc": PC_FIELDS,
+                 "dn": DN_FIELDS}
 
 PHOTO_BOX = pymupdf.Rect(426.66, 37.66, 516.50, 150.76)  # AR 1.8x1.4in picture box
 
@@ -158,6 +170,8 @@ def derived_values(data):
     sex = _clean(d.get("sex")).upper()
     d["sex"] = "M" if sex.startswith("M") else ("F" if sex.startswith("F") else "")
     d["consent_date"] = _iso_to_mmdd(d.get("consent_date"))
+    d["guardian"] = " / ".join(x for x in [_clean(d.get("father")), _clean(d.get("mother"))] if x)
+    d["event"] = _clean(d.get("event"))
     for k in ("school", "school_address", "present_address", "parents_address",
               "place_of_birth", "region", "division", "father", "mother",
               "lrn", "contact", "grade"):
@@ -208,10 +222,6 @@ def _photo_bytes(photo_dataurl):
 def fill_doc(key, data, photo_dataurl=None):
     """Return filled PDF bytes for one document. Originals are never modified."""
     src, _out = UPLOADS[key]
-    if key == "dn":
-        # Included as-is: no fields are stamped onto this form.
-        with open(src, "rb") as fh:
-            return fh.read()
     doc = pymupdf.open(src)
     d = derived_values(data)
     page = doc[0]
@@ -232,7 +242,7 @@ def fill_doc(key, data, photo_dataurl=None):
 
 
 def fill_zip(data, photo_dataurl=None):
-    """Return a zip with all filled PDFs (plus the unchanged Dental form)."""
+    """Return a zip with all filled PDFs."""
     import zipfile
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
