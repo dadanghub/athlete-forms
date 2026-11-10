@@ -103,20 +103,26 @@ PC_FIELDS = [  # parental consent
 ]
 
 DN_FIELDS = [  # dental health record (portrait 612x792) - page 1 header
-    ("full_name",       "left",   146.0, 109.5, 9.0, 212, None),
-    ("age",             "left",   146.0, 117.5, 9.0,  45,
-     (158.5, 111.0, 181.0, 119.0)),                      # covers '#NUM!' artifact
-    ("sex",             "left",   224.0, 117.5, 9.0,  48, None),
-    ("dob",             "left",   326.0, 117.5, 9.0,  55,
-     (350.0, 111.0, 357.0, 119.0)),                      # covers '--' artifact
-    ("event",           "left",   146.0, 125.5, 9.0, 138, None),
-    ("guardian",        "left",   146.0, 134.8, 9.0, 188, None),
+    # Rows are only ~8pt apart, so values use 8pt and sit ~0.8pt above each
+    # underline (lines at y=111.6 / 119.3 / 127.3 / 136.6) instead of crossing them.
+    ("full_name",       "left",   146.0, 110.8, 8.0, 212, None),
+    ("age",             "left",   146.0, 118.6, 8.0,  45,
+     (158.5, 112.5, 181.0, 119.0)),                      # covers '#NUM!' artifact (keeps name underline)
+    ("sex",             "left",   224.0, 118.6, 8.0,  48, None),
+    ("dob",             "left",   326.0, 118.6, 8.0,  55,
+     (350.0, 112.5, 357.0, 119.0)),                      # covers '--' artifact
+    ("event",           "left",   146.0, 126.6, 8.0, 138, None),
+    ("guardian",        "left",   146.0, 135.9, 8.0, 188, None),
 ]
 
 FIELDS_BY_DOC = {"ar": AR_FIELDS, "mf": MF_FIELDS, "mh": MH_FIELDS, "pc": PC_FIELDS,
                  "dn": DN_FIELDS}
 
 PHOTO_BOX = pymupdf.Rect(426.66, 37.66, 516.50, 150.76)  # AR 1.8x1.4in picture box
+PHOTO_BOXES = {
+    "ar": PHOTO_BOX,
+    "dn": pymupdf.Rect(425.46, 38.26, 515.34, 147.79),   # Dental picture frame (top right)
+}
 
 
 def _clean(s):
@@ -232,8 +238,8 @@ def fill_doc(key, data, photo_dataurl=None):
     if key == "mf":
         _fill_mf_sex(page, d.get("sex", ""))
     photo = _photo_bytes(photo_dataurl)
-    if key == "ar" and photo:
-        box = PHOTO_BOX + (2.2, 2.2, -2.2, -2.2)  # small inset inside the frame
+    if key in PHOTO_BOXES and photo:
+        box = PHOTO_BOXES[key] + (2.2, 2.2, -2.2, -2.2)  # small inset inside the frame
         page.insert_image(box, stream=photo, keep_proportion=True)
     out = io.BytesIO()
     doc.save(out, garbage=3, deflate=True)
