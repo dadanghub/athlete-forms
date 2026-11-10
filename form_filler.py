@@ -52,6 +52,8 @@ UPLOADS = {
     "dn": (_up("2026_ Dental.pdf"), "2026_ Dental.pdf"),
 }
 
+FILLER_VERSION = "2026-11-10-dental-fix"  # shown at /api/health so you can confirm the deploy is current
+
 FONT = "helv"
 
 # Each entry: (data_key, mode, x_or_cx, baseline_y, size, max_width[, whiteout_rect])

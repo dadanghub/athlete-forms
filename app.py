@@ -15,7 +15,7 @@ import os
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import FileResponse
 
-from form_filler import fill_doc, fill_zip
+from form_filler import fill_doc, fill_zip, FILLER_VERSION
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -46,7 +46,7 @@ def home():
 
 @app.get("/api/health")
 def health():
-    return {"ok": True}
+    return {"ok": True, "version": FILLER_VERSION}
 
 
 def _data_from_b64(d):
