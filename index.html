@@ -73,7 +73,7 @@
     <div class="logo">DepEd</div>
     <div>
       <h1>2026 Athlete Forms &mdash; Auto Filler</h1>
-      <div class="sub">Fill in the athlete&rsquo;s basic information once &mdash; get all four Palarong Pambansa 2026 forms filled out and ready to download.</div>
+      <div class="sub">Fill in the athlete&rsquo;s basic information once &mdash; get all five Palarong Pambansa 2026 forms filled out and ready to download.</div>
     </div>
   </div>
 </header>
@@ -142,7 +142,7 @@
   </div>
 
   <div class="actions">
-    <button class="primary" id="btnAll" onclick="generate()">⬇&ensp;Fill &amp; Download All 4 Forms</button>
+    <button class="primary" id="btnAll" onclick="generate()">⬇&ensp;Fill &amp; Download All 5 Forms</button>
     <button class="ghost" onclick="location.reload()">Clear</button>
   </div>
   <div class="status" id="status"></div>
@@ -239,8 +239,8 @@ function collect() {
 
 const LABELS = {
   ar: '📄 Athlete Record', mf: '📄 Medical Certificate',
-  mh: '📄 Medical History (2 pages)', pc: '📄 Parental Consent',
-  zip: '📦 All 4 forms (ZIP)'
+  mh: '📄 Medical History (2 pages)', pc: '📄 Parental Consent', dn: '📄 Dental Record',
+  zip: '📦 All 5 forms (ZIP)'
 };
 const blobs = {}, urls = {};
 
@@ -276,7 +276,7 @@ async function generate() {
       urls[f.key] = { blobUrl: URL.createObjectURL(blobs[f.key]), direct: f.url, name: f.name };
     }
     renderFiles(res.files);
-    status('Done! All 4 forms are filled.', 'ok');
+    status('Done! All 5 forms are ready.', 'ok');
     document.getElementById('help').style.display = 'block';
     document.getElementById('appurl').textContent = location.href;
     // try to hand the ZIP over immediately

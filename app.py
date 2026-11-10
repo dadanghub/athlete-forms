@@ -19,17 +19,19 @@ from form_filler import fill_doc, fill_zip
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
-FILE_ORDER = ["ar", "mf", "mh", "pc", "zip"]
+FILE_ORDER = ["ar", "mf", "mh", "pc", "dn", "zip"]
 FILE_NAMES = {
     "ar": "2026_ Athlete Record.pdf",
     "mf": "2026_ Medical Form.pdf",
     "mh": "2026_ Medical History.pdf",
     "pc": "2026_ Parental Consent.pdf",
+    "dn": "2026_ Dental.pdf",
     "zip": "2026 Athlete Forms - Filled.zip",
 }
 FILE_TYPES = {
     "ar": "application/pdf", "mf": "application/pdf",
     "mh": "application/pdf", "pc": "application/pdf",
+    "dn": "application/pdf",
     "zip": "application/zip",
 }
 
