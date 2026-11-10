@@ -17,6 +17,7 @@ TEMPLATE_NAMES = (
     "2026_ Medical Form.pdf",
     "2026_ Medical History.pdf",
     "2026_ Parental Consent.pdf",
+    "2026_ Dental.pdf",
 )
 
 
@@ -48,6 +49,7 @@ UPLOADS = {
     "mf": (_up("2026_ Medical Form.pdf"), "2026_ Medical Form.pdf"),
     "mh": (_up("2026_ Medical History.pdf"), "2026_ Medical History.pdf"),
     "pc": (_up("2026_ Parental Consent.pdf"), "2026_ Parental Consent.pdf"),
+    "dn": (_up("2026_ Dental.pdf"), "2026_ Dental.pdf"),
 }
 
 FONT = "helv"
@@ -206,6 +208,10 @@ def _photo_bytes(photo_dataurl):
 def fill_doc(key, data, photo_dataurl=None):
     """Return filled PDF bytes for one document. Originals are never modified."""
     src, _out = UPLOADS[key]
+    if key == "dn":
+        # Included as-is: no fields are stamped onto this form.
+        with open(src, "rb") as fh:
+            return fh.read()
     doc = pymupdf.open(src)
     d = derived_values(data)
     page = doc[0]
@@ -226,7 +232,7 @@ def fill_doc(key, data, photo_dataurl=None):
 
 
 def fill_zip(data, photo_dataurl=None):
-    """Return a zip with all four filled PDFs."""
+    """Return a zip with all filled PDFs (plus the unchanged Dental form)."""
     import zipfile
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
